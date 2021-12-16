@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,13 +24,13 @@ namespace ConsoleApp10
 
                 _yachts = new List<Yacht>()
             {
-                new Yacht(1, "MAXUS 22 PRESTIGE", "2011", 4, false, 10000),
-                new Yacht(2, "MAXUS 24 PRESTIGE", "2013", 7, false,10000),
-                new Yacht(3, "MAXUS 26 PRESTIGE", "2001",8, false, 10000),
-                new Yacht(4, "SUN ODYSSEY 29.2", "2012", 2,false, 10000),
-                new Yacht(5, "SUN FAST 26", "2013", 8,  true, 10000),
-                new Yacht(6, "SUN ODYSSEY 40", "2014", 5, true, 10000),
-                new Yacht(7, "FIRST 25.7", "2017", 6 , true, 10000),
+                new Yacht(1, "MAXUS 22 PRESTIGE", "2011", 4, false, 10000,false),
+                new Yacht(2, "MAXUS 24 PRESTIGE", "2013", 7, false,10000,true),
+                new Yacht(3, "MAXUS 26 PRESTIGE", "2001",8, false, 10000,false),
+                new Yacht(4, "SUN ODYSSEY 29.2", "2012", 2,false, 10000,false),
+                new Yacht(5, "SUN FAST 26", "2013", 8,  true, 10000,true),
+                new Yacht(6, "SUN ODYSSEY 40", "2014", 5, true, 10000,true),
+                new Yacht(7, "FIRST 25.7", "2017", 6 , true, 10000,true),
                 
             };
 
@@ -47,7 +48,7 @@ namespace ConsoleApp10
                             }
                             Console.Write(" ID yacht: ");
                             _id = int.Parse(Console.ReadLine());
-                            var activ = _yachts.FirstOrDefault(item => item.ID == _id);
+                            var activ = _yachts.FirstOrDefault(item => item.ID == _id).Status;
                             if (activ == false)
                             {
                                 _card = _yachts.FirstOrDefault(item => item.ID == _id).Key;
@@ -55,10 +56,24 @@ namespace ConsoleApp10
                                 _countDay = int.Parse(Console.ReadLine());
                                 var yachtSelected = _yachts.FirstOrDefault(item => item.ID == _id);
                                 Users.Add(Rent(new User(),_card, _countDay));
+                            yachtSelected.Status = true;
                                 Console.WriteLine("Yacht is rented");
                                 Console.WriteLine($"Amount to be paid: { yachtSelected.Money * _countDay} $ | to {_countDay} days");
+
+
+                            using (FileStream stream = new FileStream($"{Environment.CurrentDirectory}/users.csv", FileMode.Create))
+                            {
+                                using (StreamWriter sw = new StreamWriter(stream))
+                                {
+                                    sw.WriteLine("ID;Имя;Фамилия;Отчество;Год рождения;Пол;Серия паспрта;Номер паспорта;Адрес регистрации;Дата выдачи;Код подразделения;Кем был выдан;");
+                                    foreach (var item in Users)
+                                    {
+                                        sw.WriteLine($"{item.ID};{item.Name};{item.Surname};{item.Patronymic};{item.DateOfBirth};{item.Gender};{item.Seria};{item.Number};{item.Address};{item.DateOfIssue};{item.DepartmentCode};{item.issuedBy};");
+                                    }
+                                }
                             }
-                            else
+                        }
+                        else
                             {
                                 Console.WriteLine("Error");
                             }
@@ -107,7 +122,7 @@ namespace ConsoleApp10
             user.Seria = Console.ReadLine();
                 Console.Write("Введите номер паспорта: ");
             user.Number = Console.ReadLine();
-                Console.Write("Введите адерс регистрации: ");
+                Console.Write("Введите адрес регистрации: ");
             user.Address = Console.ReadLine();
                 Console.Write("Введите дата выдачи паспорта: ");
             user.DateOfIssue = DateTime.Parse(Console.ReadLine());
